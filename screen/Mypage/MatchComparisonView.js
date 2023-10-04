@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import RNFetchBlob from "rn-fetch-blob";
+
 import Api from '../../Api';
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
@@ -33,6 +35,8 @@ const MatchComparisonView = (props) => {
   const [indicatorSt, setIndCatorSt] = useState(false);
   const [mbId, setMbId] = useState();
   const [score, setScore] = useState(3);
+  const [fileUrl, setFileUrl] = useState('');
+  const [fileName, setFileName] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -60,7 +64,7 @@ const MatchComparisonView = (props) => {
 			let arrItems = args.arrItems;
 			//console.log('args ', args);
 			if(responseJson.result === 'success' && responseJson){
-				console.log('list_diff_detail_match', responseJson);
+				//console.log('list_diff_detail_match', responseJson);
         setItemInfo(responseJson);
 				setItemList(responseJson.data);
 				setTotalPage(responseJson.total_page);
@@ -203,6 +207,8 @@ const MatchComparisonView = (props) => {
                 onPress={()=>{
                   setVisible(true);
                   setMailIdx(item.md_idx);
+                  setFileUrl(item.md_file);
+                  setFileName(item.md_file_org);
                 }}
               >
                 <Text style={styles.btnText}>회사소개서</Text>
@@ -225,6 +231,8 @@ const MatchComparisonView = (props) => {
                 onPress={()=>{
                   setVisible(true);
                   setMailIdx(item.md_idx);
+                  setFileUrl(item.md_file);
+                  setFileName(item.md_file_org);
                 }}
               >
                 <Text style={styles.btnText}>회사소개서</Text>
@@ -249,6 +257,8 @@ const MatchComparisonView = (props) => {
               onPress={()=>{
                 setVisible(true);
                 setMailIdx(item.md_idx);
+                setFileUrl(item.md_file);
+                setFileName(item.md_file_org);
               }}
             >
               <Text style={styles.btnText}>회사소개서</Text>
@@ -270,6 +280,8 @@ const MatchComparisonView = (props) => {
                 onPress={()=>{
                   setVisible(true);
                   setMailIdx(item.md_idx);
+                  setFileUrl(item.md_file);
+                  setFileName(item.md_file_org);
                 }}
               >
                 <Text style={styles.btnText}>회사소개서</Text>
@@ -300,6 +312,8 @@ const MatchComparisonView = (props) => {
                 onPress={()=>{
                   setVisible(true);
                   setMailIdx(item.md_idx);
+                  setFileUrl(item.md_file);
+                  setFileName(item.md_file_org);
                 }}
               >            
                 <Text style={styles.btnText}>회사소개서</Text>
@@ -333,6 +347,8 @@ const MatchComparisonView = (props) => {
               onPress={()=>{
                 setVisible(true);
                 setMailIdx(item.md_idx);
+                setFileUrl(item.md_file);
+                setFileName(item.md_file_org);
               }}
             >            
               <Text style={styles.btnText}>회사소개서</Text>
@@ -366,6 +382,7 @@ const MatchComparisonView = (props) => {
 
 			if(responseJson.result === 'success'){
 				//console.log('성공 : ',responseJson);
+        fileDown({url:fileUrl, name:fileName});
         setIndCatorSt(false);        
         ToastMessage('회사소개서가 메일로 전송되었습니다.');
 			}else{
@@ -419,6 +436,16 @@ const MatchComparisonView = (props) => {
 		}
 	}
 
+  const fileDown = async (file: File) => {
+    await RNFetchBlob.config({
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: `${RNFetchBlob.fs.dirs.DownloadDir}/${file.name}`,
+      },
+    }).fetch('GET', file.url);
+  }
+
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'발주업체 비교내역'} />
@@ -455,6 +482,7 @@ const MatchComparisonView = (props) => {
           keyExtractor={(item, index) => index.toString()}
           onEndReachedThreshold={0.6}
           onEndReached={moreData}
+          disableVirtualization={false}
           ListHeaderComponent={
             <>          
             <View style={styles.borderTop}></View>

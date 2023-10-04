@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {ActivityIndicator, Alert, Animated, BackHandler, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, Linking} from 'react-native';
+import {ActivityIndicator, Alert, Animated, BackHandler, Button, Platform, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, Linking} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
@@ -7,6 +7,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
 import {initializeApp} from "@react-native-firebase/app";
 import firestore, { doc, deleteDoc } from '@react-native-firebase/firestore';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper'
+import AsyncStorage from '@react-native-community/async-storage';
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
@@ -20,6 +22,13 @@ const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
+
+let offTop = 10;
+let inputPaddTop = 9;
+if(Platform.OS === 'ios'){
+	offTop = 20 + getStatusBarHeight();
+	inputPaddTop = 15;
+}
 
 const Room = (props) => {
 	let scrollViewRef = useRef(null);
@@ -62,19 +71,19 @@ const Room = (props) => {
 	useEffect(() => {
 		let isSubscribed = true;
 
-		if(!isFocused){
-			if(!pageSt){
-				setVisible(false);
-				setVisible2(false);
-				setVisible3(false);
-				setVisible4(false);
-				setVisible5(false);
-				setVisible6(false);
-				setVisible7(false);
-				setToastModal(false);
-				setToastText('');
-				setRadio(1);
-			}
+		if(!isFocused){			
+			setVisible(false);
+			setVisible2(false);
+			setVisible3(false);
+			setVisible4(false);
+			setVisible5(false);
+			setVisible6(false);
+			setVisible7(false);
+			setToastModal(false);
+			setToastText('');
+			setRadio(1);
+			AsyncStorage.removeItem('roomPage');
+			AsyncStorage.removeItem('roomIdx');			
 		}else{
 			setRouteLoad(true);
 			setPageSt(!pageSt);			
@@ -140,7 +149,9 @@ const Room = (props) => {
   }
 
   useEffect(() => {
-		let TestArrayList = [];
+	let TestArrayList = [];
+
+	//console.log(userInfo?.mb_idx+"///"+recv_idx)
 
     return ref.orderBy('datetime', 'desc').limit(1).onSnapshot(querySnapshot => {
       const list = [];
@@ -162,20 +173,25 @@ const Room = (props) => {
 				if(content != ''){ formData.ch_msg = content; }
 				if(imgUrl != ''){ formData.ch_file = {'uri': imgUrl, 'type': 'image/png', 'name': 'chatFile.png'}; }
 
-				Api.send('POST', 'send_chat', formData, (args)=>{
-					let resultItem = args.resultItem;
-					let responseJson = args.responseJson;
-		
-					if(responseJson.result === 'success'){
-						//console.log('send_chat : ',responseJson);
-						getRoomData();
-						fireRemove(doc.id);
-						setImg({});						
-					}else{
-						console.log('결과 출력 실패!!!', resultItem.result_text);
-						//ToastMessage(responseJson.result_text);
-					}
-				});				
+				if(userInfo?.mb_idx !== recv_idx){
+					Api.send('POST', 'send_chat', formData, (args)=>{
+						let resultItem = args.resultItem;
+						let responseJson = args.responseJson;
+			
+						if(responseJson.result === 'success'){
+							//console.log('send_chat : ',responseJson);
+							getRoomData();
+							fireRemove(doc.id);
+							setImg({});
+						}else{
+							console.log('send_chat 실패!!!', responseJson);
+							//ToastMessage(responseJson.result_text);
+						}
+					});				
+				}else{
+					getRoomData();
+					setImg({});
+				}			
 
         list.push({
           id: doc.id,
@@ -330,6 +346,9 @@ const Room = (props) => {
 			if(responseJson.result === 'success' && responseJson){
 				//console.log("in_chat : ",responseJson);
 				setRoomInfo(responseJson);
+
+				AsyncStorage.setItem("roomPage", 'on');
+				AsyncStorage.setItem("roomIdx", (responseJson.cr_idx).toString());
 
 				const dbList = responseJson.data;
 				let TestDbList = [];
@@ -708,7 +727,7 @@ const Room = (props) => {
 							onPress={()=>{setVisible4(true)}}
 						>
 							<AutoHeightImage width={50} source={require("../../assets/img/chat_btn3.png")} />
-							<Text style={styles.msgOptBtnText}>전화{userInfo?.mb_idx }</Text>
+							<Text style={styles.msgOptBtnText}>전화</Text>
 						</TouchableOpacity>
 						) : null}
 						<TouchableOpacity
@@ -996,7 +1015,7 @@ const Room = (props) => {
 						activeOpacity={opacityVal}
 						onPress={() => {setVisible6(false)}}
 					>
-						<AutoHeightImage width={35} source={require("../../assets/img/write_btn_off2.png")} />
+						<AutoHeightImage width={30} source={require("../../assets/img/write_btn_off2.png")} />
 					</TouchableOpacity>
 					<AutoHeightImage width={widnowWidth-20} source={{uri: popImg}} />
 				</View>				
@@ -1120,7 +1139,7 @@ const styles = StyleSheet.create({
 	msgAreaTop: {flexDirection:'row',alignItems:'flex-end',justifyContent:'space-between',paddingVertical:15,},
 	msgPlusBtn: {width:30,height:52,alignItems:'center',justifyContent:'center',},
 	msgInputArea: {width:widnowWidth-72,position:'relative'},
-	msgInput: {width:widnowWidth-72,maxHeight:60,backgroundColor:'#fff',borderWidth:1,borderColor:'#E1E1E1',borderRadius:20,paddingLeft:15,paddingRight:50,fontSize:14,color:'#000'},
+	msgInput: {width:widnowWidth-72,minHeight:50,maxHeight:60,backgroundColor:'#fff',borderWidth:1,borderColor:'#E1E1E1',borderRadius:20,paddingTop:inputPaddTop,paddingLeft:15,paddingRight:50,fontSize:14,color:'#000'},
 	msgInputArea2: {width:widnowWidth-30},
 	msgInput2: {width:widnowWidth-30,backgroundColor:'#fafafa'},
 	msgBtn: {position:'absolute',right:5,top:7,},
@@ -1135,7 +1154,7 @@ const styles = StyleSheet.create({
 
 	modalBack: {width:widnowWidth,height:widnowHeight,backgroundColor:'#000',opacity:0.5},
 	modalCont: {width:innerWidth,height:154,padding:30,paddingLeft:20,paddingRight:20,backgroundColor:'#fff',borderRadius:10,position:'absolute',left:20,top:((widnowHeight/2)-88)},
-  modalCont2: {width:innerWidth,borderRadius:10,position:'absolute',left:20,bottom:35},
+  	modalCont2: {width:innerWidth,borderRadius:10,position:'absolute',left:20,bottom:35},
 	modalCont2Box: {},
 	modalCont2Btn: {width:innerWidth,height:58,backgroundColor:'#F1F1F1',display:'flex',alignItems:'center',
 	modalCont3: {width:innerWidth,padding:20,paddingBottom:30,backgroundColor:'#fff',borderRadius:10,position:'absolute',left:20,top:((widnowHeight/2)-155)},justifyContent:'center',},
@@ -1145,8 +1164,8 @@ const styles = StyleSheet.create({
 	cancel: {backgroundColor:'#fff',borderRadius:12,marginTop:10,},
 	modalCont2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:19,color:'#007AFF'},
 	modalCont2BtnText2: {color:'#DF4339'},
-  modalCont3: {width:innerWidth,padding:20,paddingBottom:30,backgroundColor:'#fff',borderRadius:10,position:'absolute',left:20,top:((widnowHeight/2)-160)},
-  avatarTitle: {paddingBottom:15,borderBottomWidth:1,borderColor:'#CCCCCC'},
+  	modalCont3: {width:innerWidth,padding:20,paddingBottom:30,backgroundColor:'#fff',borderRadius:10,position:'absolute',left:20,top:((widnowHeight/2)-160)},
+  	avatarTitle: {paddingBottom:15,borderBottomWidth:1,borderColor:'#CCCCCC'},
 	avatarTitleText: {textAlign:'center',fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:18,color:'#191919'},
   avatarDesc: {marginTop:20,},
   avatarDescText: {textAlign:'center',fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:22,color:'#191919',paddingHorizontal:20,},
@@ -1187,7 +1206,7 @@ const styles = StyleSheet.create({
 	notMsgDataText: {fontFamily:Font.NotoSansMedium,fontSize:15,lineHeight:17,color:'#999',textAlign:'center'},
 
 	imgPopBox: {width:widnowWidth,height:widnowHeight,backgroundColor:'rgba(0,0,0,0.9)',overflow:'hidden',position:'absolute',left:0,top:0,alignItems:'center',justifyContent:'center'},
-	modalX: {position:'absolute',top:10,right:10,},
+	modalX: {position:'absolute',top:offTop,right:10,},
 
 	indicator: {width:widnowWidth,height:widnowHeight,backgroundColor:'rgba(255,255,255,0.5)',display:'flex', alignItems:'center', justifyContent:'center',position:'absolute',left:0,top:0,},
 })

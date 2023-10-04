@@ -130,6 +130,7 @@ const MatchChat = ({navigation, route}) => {
           keyExtractor={(item, index) => index.toString()}
           onEndReachedThreshold={0.6}
           onEndReached={moreData}
+          disableVirtualization={false}
           ListEmptyComponent={
             <View style={styles.notData}>
               <AutoHeightImage width={74} source={require("../../assets/img/not_data.png")} />
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
   chatBoxName: {},
   chatBoxNameText: {fontFamily:Font.NotoSansBold,fontSize:17,lineHeight:25,color:'#353636'},
   chatBoxCont: {marginTop:5,},
-  chatBoxContText: {mily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#191919'},
+  chatBoxContText: {fontFamily:Font.NotoSansMedium,fontSize:14,lineHeight:20,color:'#191919'},
   chatBoxRight: {width:80,display:'flex',alignItems:'flex-end',paddingTop:10,},
   chatBoxDate: {},
   chatBoxDateText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:16,color:'#919191'},

@@ -5,7 +5,10 @@ import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Swiper from 'react-native-swiper'
+import BitSwiper from 'react-native-bit-swiper';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper'
 import DocumentPicker from 'react-native-document-picker'
+import RNFetchBlob from "rn-fetch-blob";
 
 import Font from "../../assets/common/Font";
 import ToastMessage from "../../components/ToastMessage";
@@ -19,6 +22,11 @@ const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
 const widnowHeight = Dimensions.get('window').height;
 const opacityVal = 0.8;
+
+let offTop = 10;
+if(Platform.OS === 'ios'){
+ offTop = 20 + getStatusBarHeight();
+}
 
 const MatchView = (props) => {
   const scrollRef = useRef();
@@ -35,6 +43,7 @@ const MatchView = (props) => {
   const [visible4, setVisible4] = useState(false);
   const [visible5, setVisible5] = useState(false);
   const [visible6, setVisible6] = useState(false);
+  const [visible7, setVisible7] = useState(false);
   const [floorFile, setFloorFile] = useState(''); //도면 파일
 	const [floorFileType, setFloorFileType] = useState(''); //도면 파일
 	const [floorFileUri, setFloorFileUri] = useState(''); //도면 파일
@@ -49,6 +58,8 @@ const MatchView = (props) => {
   const [radio, setRadio] = useState(1);
   const [radioList, setRadioList] = useState([]);
   const [dwgPmSt, setDwgPmSt] = useState(0);
+  const [swpCurr, setSwpCurr] = useState(0);
+  const [popImgUrl, setPopImgUrl] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -63,6 +74,7 @@ const MatchView = (props) => {
         setVisible4(false);
         setVisible5(false);
         setVisible6(false);
+        setVisible7(false);
 			}
 		}else{
 			setRouteLoad(true);
@@ -286,6 +298,7 @@ const MatchView = (props) => {
 
 			if(responseJson.result === 'success'){
 				//console.log('성공 : ',responseJson);
+        fileDown({url:itemInfo.mc_file, name:itemInfo.mc_file_org});
         setIndCatorSt(false);        
         ToastMessage('도면이 메일로 전송되었습니다.');
 			}else{
@@ -430,6 +443,16 @@ const MatchView = (props) => {
 		});
   }
 
+  const fileDown = async (file: File) => {
+    await RNFetchBlob.config({
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: `${RNFetchBlob.fs.dirs.DownloadDir}/${file.name}`,
+      },
+    }).fetch('GET', file.url);
+  }
+
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header 
@@ -442,35 +465,26 @@ const MatchView = (props) => {
         <>
           <ScrollView ref={scrollRef}>
             {swp.length > 0 ? (
-            <Swiper 
-              style={styles.swiper} 
-              showsButtons={true}
-              nextButton={
-                <View style={[styles.swiperNavi, styles.swiperNext]}>
-                  <AutoHeightImage width={35} source={require("../../assets/img/swipe_next.png")} />
-                </View>
-              }
-              prevButton={
-                <View style={[styles.swiperNavi, styles.swiperPrev]}>
-                  <AutoHeightImage width={35} source={require("../../assets/img/swipe_prev.png")} />
-                </View>
-              }
-              showsPagination={true}
-              paginationStyle={styles.swiperDotBox}
-              dot={<View style={styles.swiperDot} />}
-              activeDot={<View style={[styles.swiperDot, styles.swiperActiveDot]} />}
-            >
-              {/* <View style={styles.swiperSlider}>            
-                <AutoHeightImage width={widnowWidth} source={require("../../assets/img/view_img.jpg")} />
-              </View> */}
-              {swp.map((item, index) => {
-                return(
-                  <View key={index} style={styles.swiperSlider}>
-                    <AutoHeightImage width={widnowWidth} source={{uri: item.mf_name}} />
-                  </View>
-                )
-              })}
-            </Swiper>
+            <BitSwiper
+              items={swp}
+              paginateStyle={{marginTop: -20,}}
+              paginateDotStyle={styles.swiperDot}
+              paginateActiveDotStyle={[styles.swiperDot, styles.swiperActiveDot]}
+              onItemIndexChanging={(curr) => {console.log(curr)}}
+              onItemRender={(item, index) => (
+                <TouchableOpacity
+                  key={index} 
+                  style={styles.swiperSlider}
+                  activeOpacity={1}
+                  onPress={()=> {
+                    setVisible7(true);
+                    setPopImgUrl(item.mf_name);
+                  }}
+                >
+                  <AutoHeightImage width={widnowWidth} source={{uri: item.mf_name}} />
+                </TouchableOpacity>
+              )}
+            />
             ) : null}
 
             <View style={[styles.viewBox1]}>
@@ -965,6 +979,29 @@ const MatchView = (props) => {
       )}
 
       <Modal
+        visible={visible7}
+				transparent={true}
+				onRequestClose={() => {setVisible7(false)}}
+      >
+				<Pressable 
+					style={styles.modalBack}
+					onPress={() => {setVisible7(false)}}
+				></Pressable>
+        <TouchableOpacity
+          style={styles.swiperOff}
+          activeOpacity={opacityVal}
+          onPress={() => setVisible7(false)}
+        >
+          <AutoHeightImage width={30} source={require("../../assets/img/icon_delete2.png")} />
+        </TouchableOpacity>
+				<View style={styles.swiperModal}>
+          <View style={styles.swiperModal}>
+          <AutoHeightImage width={innerWidth} source={{uri: popImgUrl}} style={styles.swiperModalImg} />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
         visible={toastModal}
 				animationType={"slide"}
 				transparent={true}
@@ -1124,6 +1161,10 @@ const styles = StyleSheet.create({
   borderTop2: {borderTopWidth:1,borderTopColor:'#E3E3E4'},
 
   mgTop20: {marginTop:20},
+
+  swiperModal: {width:widnowWidth,height:widnowHeight,padding:20,position:'absolute',left:0,top:0,alignItems:'center',justifyContent:'center'},
+  swiperModalImg: {position:'relative',top:-10},
+  swiperOff: {position:'absolute',top:getStatusBarHeight()+10,right:10,zIndex:10,},
 })
 
 //export default MatchView

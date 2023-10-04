@@ -18,7 +18,7 @@ const opacityVal = 0.8;
 const Privacy = ({navigation, route}) => {
   const pageTitle = route.params.tit;
   const para = route.params.para;
-	console.log(para);
+	//console.log(para);
 
 	const [routeLoad, setRouteLoad] = useState(false);
 	const [pageSt, setPageSt] = useState(false);

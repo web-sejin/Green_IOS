@@ -43,19 +43,23 @@ const Profile = (props) => {
 	}, [isFocused]);
 
   const getData = async () => {
-    Api.send('GET', '	get_member_info', {is_api: 1}, (args)=>{
-			let resultItem = args.resultItem;
-			let arrItems = args.arrItems;
-			let responseJson = args.responseJson;
-			//console.log(args);
-			if(responseJson.result === 'success' && responseJson){
-				//console.log('get_member_info', responseJson);
-        setPickture(responseJson.mb_img1);
-			}else{
-        console.log('에러 : ', responseJson.result_text);
-				//ToastMessage(responseJson.result_text);
-			}
-		});
+    // Api.send('GET', '	get_member_info', {is_api: 1}, (args)=>{
+		// 	let resultItem = args.resultItem;
+		// 	let arrItems = args.arrItems;
+		// 	let responseJson = args.responseJson;
+		// 	//console.log(args);
+		// 	if(responseJson.result === 'success' && responseJson){
+		// 		//console.log('get_member_info', responseJson);
+    //     setPickture(responseJson.mb_img1);
+		// 	}else{
+    //     console.log('에러 : ', responseJson.result_text);
+		// 		//ToastMessage(responseJson.result_text);
+		// 	}
+		// });
+
+    if(userInfo.mb_img1){
+      setPickture(userInfo.mb_img1);
+    }
   }
 
   const onAvatarChange = (image: ImageOrVideo) => {

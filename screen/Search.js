@@ -429,6 +429,7 @@ const SearchList = ({navigation, route}) => {
 						data={itemList}
 						renderItem={(getList)}
 						keyExtractor={(item, index) => index.toString()}
+						disableVirtualization={false}
 						ListEmptyComponent={
 							<View style={styles.notData}>
 								<AutoHeightImage width={74} source={require("../assets/img/not_data.png")} />

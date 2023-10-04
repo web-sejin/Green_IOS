@@ -12,6 +12,7 @@ import Header from '../../components/Header';
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../../redux/module/action/UserAction';
 import Api from '../../Api';
+import PushChk from "../../components/Push";
 
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -30,6 +31,8 @@ const SalesComplete = (props) => {
   const [visible, setVisible] = useState(false);
   const [visible2, setVisible2] = useState(false);
   const [endList, setEndList] = useState([]);
+  const [nowPage, setNowPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -59,16 +62,36 @@ const SalesComplete = (props) => {
 			let arrItems = args.arrItems;
 			//console.log('args ', responseJson);
 			if(responseJson.result === 'success' && responseJson){
-				console.log("insert_end_product : ",responseJson);
+				//console.log("insert_end_product : ",responseJson);
         setEndList(responseJson.data);
+        setTotalPage(responseJson.total_page);
 			}else{
-				//setItemList([]);				
+				setItemList([]);		
+        setNowPage(1);
 				console.log('결과 출력 실패!', responseJson);
 			}
 		});
     setIsLoading(true);
   }
-
+  const moreData = async () => {    
+    if(totalPage > nowPage){
+      await Api.send('GET', 'insert_end_product', {is_api: 1, pd_idx: idx, page:nowPage+1}, (args)=>{
+        let resultItem = args.resultItem;
+        let responseJson = args.responseJson;
+        let arrItems = args.arrItems;
+        //console.log('args ', args);
+        if(responseJson.result === 'success' && responseJson){
+          //console.log('list_chat more : ',responseJson.data);				
+          const addItem = itemList.concat(responseJson.data);				
+          setEndList(addItem);			
+          setNowPage(nowPage+1);
+        }else{
+          console.log(responseJson.result_text);
+          //console.log('결과 출력 실패!');
+        }
+      });
+    }
+  }
   const getList = ({item, index}) => (
 		<TouchableOpacity 
       style={[styles.compBtn]}
@@ -157,14 +180,15 @@ const SalesComplete = (props) => {
   }
 
 	return (
-		<SafeAreaView style={styles.safeAreaView}>
+		<SafeAreaView style={styles.safeAreaView}>      
 			<Header navigation={navigation} headertitle={'판매완료 업체선정'} />
       <FlatList
         data={endList}
         renderItem={(getList)}
         keyExtractor={(item, index) => index.toString()}		
         onEndReachedThreshold={0.6}
-        //onEndReached={moreData}
+        onEndReached={moreData}
+        disableVirtualization={false}
         ListHeaderComponent={
           <>						
           <View style={[styles.salesAlert, styles.borderBot]}>

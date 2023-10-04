@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
 export default {
-	NotoSansBlack : 'NotoSansKR-Black',
-	NotoSansBold : 'NotoSansKR-Bold',
-	NotoSansMedium : 'NotoSansKR-Medium',
-	NotoSansRegular : 'NotoSansKR-Regular',	
+	NotoSansBlack : 'NotoSansCJKkr-Black',
+	NotoSansBold : 'NotoSansCJKkr-Bold',
+	NotoSansMedium : 'NotoSansCJKkr-Medium',
+	NotoSansRegular : 'NotoSansCJKkr-Regular',	
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>52626973778-qkss6ad78gpuucqa1cj4s15kd8r5rg7v.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC-F6Y0XKYy9VdsOkxjKIYyagQQw-fvfDY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>52626973778</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.Greengong</string>
+	<key>PROJECT_ID</key>
+	<string>greengong-f2718</string>
+	<key>STORAGE_BUCKET</key>
+	<string>greengong-f2718.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:52626973778:ios:8790054a746f4ccd79eb8b</string>
+</dict>
+</plist>

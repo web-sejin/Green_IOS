@@ -123,6 +123,7 @@ const FaqList2 = ({navigation, route}) => {
 				keyExtractor={(item, index) => index.toString()}	
 				onEndReachedThreshold={0.6}
 				onEndReached={moreData}
+				disableVirtualization={false}
 				ListHeaderComponent={
 					<>
 					<View style={styles.faqList}>

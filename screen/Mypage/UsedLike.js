@@ -289,6 +289,7 @@ const UsedLike = (props) => {
           keyExtractor={(item, index) => index.toString()}
           onEndReachedThreshold={0.6}
           onEndReached={moreData}
+          disableVirtualization={false}
           ListEmptyComponent={
             isLoading ? (
               <View style={styles.notData}>
@@ -309,6 +310,7 @@ const UsedLike = (props) => {
           keyExtractor={(item, index) => index.toString()}
           onEndReachedThreshold={0.6}
           onEndReached={moreData2}
+          disableVirtualization={false}
           ListEmptyComponent={
             isLoading ? (
               <View style={styles.notData}>
