@@ -54,8 +54,8 @@ const Setting = (props) => {
 		formData.append('is_api', 1);
 		formData.append('mb_idx', userInfo?.mb_idx);
 		const logout =  await member_logout(formData);
-		console.log("logout : ",logout);
-
+		//console.log("logout : ",logout);
+    setVisible(false);
 		ToastMessage('로그아웃처리 되었습니다.');
 		navigation.reset({
 			routes: [{ name: 'Login'}],

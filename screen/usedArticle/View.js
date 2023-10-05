@@ -46,6 +46,7 @@ const UsedView = (props) => {
   const [itemInfo, setItemInfo] = useState({});
   const [swp, setSwp] = useState({});
   const [latest, setLatest] = useState({});
+  const [latestCnt, setLatestCnt] = useState(0);
   const [naviPage, setNaviPage] = useState('');
   const [myInfo, setMyInfo] = useState({});
   const [prdMbIdx, setPrdMbIdx] = useState();
@@ -101,6 +102,7 @@ const UsedView = (props) => {
 			}else{
 				//setItemList([]);				
 				console.log('결과 출력 실패!');
+        navigation.navigate('Home', {isSubmit: true});
 			}
 		});
     
@@ -341,11 +343,17 @@ const UsedView = (props) => {
     if(userInfo?.mb_idx == itemInfo.pd_mb_idx){
       ToastMessage("자신의 게시물은 입찰할 수 없습니다.");
     }else{
-      if(itemInfo.is_bidding == 1){
-        setVisible2(true);
+      if(userInfo?.bc_status_org == 1){
+        ToastMessage('사업자등록증이 대기상태입니다.');
+      }else if(userInfo?.bc_status_org == 3){
+        ToastMessage('사업자등록증이 반려상태입니다.');
       }else{
-        navigation.navigate('Bid', {idx:idx});
-      }     
+        if(itemInfo.is_bidding == 1){
+          setVisible2(true);
+        }else{
+          navigation.navigate('Bid', {idx:idx});
+        }
+      }
     }
   }
 
@@ -408,29 +416,33 @@ const UsedView = (props) => {
         <>
         <ScrollView ref={scrollRef}>
           {swp.length > 0 ? (
-          <BitSwiper
-            items={swp}
-            paginateStyle={{marginTop: -20,}}
-            paginateDotStyle={styles.swiperDot}
-            paginateActiveDotStyle={[styles.swiperDot, styles.swiperActiveDot]}
-            onItemIndexChanging={(curr) => {console.log(curr)}}
-            onItemRender={(item, index) => (
-              <TouchableOpacity
-                key={index} 
-                style={styles.swiperSlider}
-                activeOpacity={1}
-                onPress={()=> {
-                  setVisible6(true);
-                  setPopImgUrl(item.pf_name);
-                }}
-              >
-                <AutoHeightImage width={widnowWidth} source={{uri: item.pf_name}} />
-              </TouchableOpacity>
-            )}
-          />
+            <>
+            <View style={styles.swiper}>
+              <BitSwiper
+                items={swp}
+                paginateStyle={{marginTop: -20,}}
+                paginateDotStyle={styles.swiperDot}
+                paginateActiveDotStyle={[styles.swiperDot, styles.swiperActiveDot]}
+                onItemIndexChanging={(curr) => {console.log(curr)}}
+                onItemRender={(item, index) => (
+                  <TouchableOpacity
+                    key={index} 
+                    style={styles.swiperSlider}
+                    activeOpacity={1}
+                    onPress={()=> {
+                      setVisible6(true);
+                      setPopImgUrl(item.pf_name);
+                    }}
+                  >
+                    <AutoHeightImage width={widnowWidth} source={{uri: item.pf_name}} />
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+            </>
           ) : null}
           
-          <View style={[styles.viewBox1, styles.borderBot]}>
+          <View style={[styles.viewBox1, latestCnt > 0 ? styles.borderBot : null]}>
             <View style={styles.profileBox}>
               <TouchableOpacity
                 style={styles.otherProfile}
@@ -542,12 +554,12 @@ const UsedView = (props) => {
             </View>
           </View>
           
+          {latestCnt > 0 ? (
           <View style={[styles.viewBox2, styles.borderTop]}>
             <View style={styles.otherItemTit}>
               <Text style={styles.otherItemTitText}>{itemInfo.mb_nick}님의 다른 판매상품</Text>
             </View>
-
-            {latest.length > 0 ? (
+            
             <View style={styles.otherItemList}>
               {latest.map((item2, index2) => {
                 return(
@@ -654,9 +666,9 @@ const UsedView = (props) => {
                 </TouchableOpacity>
                 )
               })}
-            </View>
-            ) : null}
+            </View>            
           </View>
+          ) : null}
         </ScrollView>
         <View style={[styles.nextFix]}>
           <View style={styles.nextFixFlex}>
@@ -743,7 +755,7 @@ const UsedView = (props) => {
 							<Text style={styles.modalCont2BtnText}>수정하기</Text>
 						</TouchableOpacity>
             
-            {itemInfo.pd_status_org == 3 ? null : (     
+            {itemInfo.pd_status_org == 2 || itemInfo.pd_status_org == 3 ? null : (     
             <TouchableOpacity 
 							style={[styles.modalCont2Btn, styles.modify]}
 							activeOpacity={opacityVal}
@@ -987,7 +999,7 @@ const UsedView = (props) => {
         visible={toastModal}
 				animationType={"slide"}
 				transparent={true}
-      >
+      >        
 				<View style={styles.toastModal}>
 					<View
 						style={{

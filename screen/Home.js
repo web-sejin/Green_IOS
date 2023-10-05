@@ -7,6 +7,9 @@ import Font from "../assets/common/Font"
 import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
 import messaging from '@react-native-firebase/messaging';
+import ToastMessage from "../components/ToastMessage";
+import {connect} from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 
 const widnowWidth = Dimensions.get('window').width;
 const innerWidth = widnowWidth - 40;
@@ -47,7 +50,7 @@ const Home = (props) => {
 	const [myFacOn, setMyFacOn] = useState('');
 	const [initLoading, setInitLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
-	
+
 	const isFocused = useIsFocused();
 	useEffect(()=>{
 		getMyInfo();
@@ -84,14 +87,14 @@ const Home = (props) => {
 			let arrItems = args.arrItems;
 			//console.log('args ', responseJson);
 			if(responseJson.result === 'success' && responseJson){
-				//console.log(responseJson);
+				console.log(responseJson);
         setMyInfo(responseJson);
 				setMyFac(responseJson.fac_info);
 				
 				if(responseJson.fac_info[0].fc_use == 1){
 					setMyFacOn("공장1("+responseJson.fac_info[0].fc_dong+")");
 				}else if(responseJson.fac_info[1].fc_use == 1){
-					setMyFacOn("공장2("+responseJson.fac_info[0].fc_dong+")");
+					setMyFacOn("공장2("+responseJson.fac_info[1].fc_dong+")");
 				}
 				// const fcUse = (responseJson.fac_info).find(item=> item.fc_use==1);
 				// const fcUseText = fcUse.fc_name+"("+fcUse.fc_dong+")";
@@ -111,7 +114,7 @@ const Home = (props) => {
 			let arrItems = args.arrItems;
 			//console.log('args ', args);
 			if(responseJson.result === 'success' && responseJson){
-				//console.log(responseJson);
+				//console.log("list_product : ",responseJson);
 				setItemList(responseJson.data);
 				setTotalPage(responseJson.total_page);
 				setNowPage(1);
@@ -122,7 +125,7 @@ const Home = (props) => {
 			}
 		});
 
-		setIsLoading(true);		
+		setIsLoading(true);
 	}
 
 	//중고 리스트 무한 스크롤
@@ -379,7 +382,7 @@ const Home = (props) => {
 	}
 
 	//공장 변경
-	const changeFac = async (idx) => {
+	const changeFac = async (idx, v) => {
 		let formData = {
 			is_api:1,				
 			fc_idx:idx,
@@ -390,14 +393,17 @@ const Home = (props) => {
 			let responseJson = args.responseJson;
 
 			if(responseJson.result === 'success'){				
+				console.log('choice_fac : ',responseJson);
 				setItemList([]);
 				setNowPage(1);
 				setVisible(false);
 				setMyFac(responseJson.data);
 
-				const fcUse = (responseJson.data).find(item=> item.fc_use==1);
-				const fcUseText = fcUse.fc_name+"("+fcUse.fc_dong+")";
-				setMyFacOn(fcUseText);				
+				const fcUse = (responseJson.data).find(item=> item.fc_use==1);				
+				//const fcUseText = fcUse.fc_name+"("+fcUse.fc_dong+")";
+				console.log('fcUse : ',fcUse);						
+				const fcUseText = '공장'+v+"("+fcUse.fc_dong+")";
+				setMyFacOn(fcUseText);	
 
 				getItemList();				
 			}else{
@@ -415,6 +421,16 @@ const Home = (props) => {
 			}, 2000);
 		}
 	}
+
+	const writeChk = () => {
+		if(userInfo?.bc_status_org == 1){
+			ToastMessage('사업자등록증이 대기상태입니다.');
+		}else if(userInfo?.bc_status_org == 3){
+			ToastMessage('사업자등록증이 반려상태입니다.');
+		}else{
+			setVisible2(true);
+		}		
+	}
 	
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
@@ -427,6 +443,7 @@ const Home = (props) => {
 					<Text style={styles.headerBtn1Text}>{myFacOn}</Text>
 					<AutoHeightImage width={18} source={require("../assets/img/icon_arrow.png")} />
 				</TouchableOpacity>
+
 				<TouchableOpacity 
 					style={styles.headerBtn2}
 					activeOpacity={opacityVal}
@@ -438,85 +455,82 @@ const Home = (props) => {
 				</TouchableOpacity>
 			</View>
 			
-			
-				<FlatList
-					data={itemList}
-					renderItem={(getList)}
-					keyExtractor={(item, index) => index.toString()}
-					onScroll={onScroll}					
-					onEndReachedThreshold={0.8}
-					onEndReached={moreData}
-					refreshing={refreshing}
-					onRefresh={onRefresh}
-					disableVirtualization={false}
-					ListHeaderComponent={
-						<>						
-						<KeyboardAvoidingView style={[styles.schBox, styles.borderBot]}>
-							<View style={styles.schIptBox}>
-								<TouchableOpacity
-								style={styles.goToSch}
-								activeOpacity={opacityVal}
-								onPress={() => {navigation.navigate('SearchList', {backPage:'Home', tab:1})}}
-								>
-									<Text style={styles.goToSchText}>무엇을 찾아드릴까요?</Text>
-								</TouchableOpacity>
-							</View>
-							<View style={styles.schFilterBox}>
-								{filterLen > 0 ? (
-									<ScrollView horizontal={true} style={styles.filterLabelBox}>
-										{filterList2.map((item, index) => {
-											if(item.isChecked){
-												return(
-												<TouchableOpacity 
-													key={index} 
-													style={styles.filterLabel}
-													activeOpacity={opacityVal}
-													onPress={()=>{setVisible3(true)}}
-												>
-													<Text style={styles.filterLabelText}>{item.txt}</Text>
-												</TouchableOpacity>
-												)
-											}
-										})}
-									</ScrollView>
-								) : (
-									<TouchableOpacity 
-										style={styles.schFilterBtn1} 
-										activeOpacity={opacityVal}
-										onPress={()=>{setVisible3(true)}}
-									>
-										<Text style={styles.schFilterBtnText}>필터를 선택해 주세요.</Text>
-									</TouchableOpacity>
-								)}
+			<FlatList
+				data={itemList}
+				renderItem={(getList)}
+				keyExtractor={(item, index) => index.toString()}
+				onScroll={onScroll}					
+				onEndReachedThreshold={0.8}
+				onEndReached={moreData}
+				refreshing={refreshing}
+				onRefresh={onRefresh}
+				disableVirtualization={false}
+				ListHeaderComponent={
+					<>						
+					<KeyboardAvoidingView style={[styles.schBox, styles.borderBot]}>
+						<View style={styles.schIptBox}>
+							<TouchableOpacity
+							style={styles.goToSch}
+							activeOpacity={opacityVal}
+							onPress={() => {navigation.navigate('SearchList', {backPage:'Home', tab:1})}}
+							>
+								<Text style={styles.goToSchText}>무엇을 찾아드릴까요?</Text>
+							</TouchableOpacity>
+						</View>
+						<View style={styles.schFilterBox}>
+							{filterLen > 0 ? (
+								<ScrollView horizontal={true} style={styles.filterLabelBox}>
+									{filterList2.map((item, index) => {
+										if(item.isChecked){
+											return(
+											<TouchableOpacity 
+												key={index} 
+												style={styles.filterLabel}
+												activeOpacity={opacityVal}
+												onPress={()=>{setVisible3(true)}}
+											>
+												<Text style={styles.filterLabelText}>{item.txt}</Text>
+											</TouchableOpacity>
+											)
+										}
+									})}
+								</ScrollView>
+							) : (
 								<TouchableOpacity 
-									style={styles.schFilterBtn2}
+									style={styles.schFilterBtn1} 
 									activeOpacity={opacityVal}
 									onPress={()=>{setVisible3(true)}}
 								>
-									<Text style={styles.schFilterBtn2Text}>상세필터</Text>
-									<AutoHeightImage width={17} source={require("../assets/img/icon_filter.png")} />
+									<Text style={styles.schFilterBtnText}>필터를 선택해 주세요.</Text>
 								</TouchableOpacity>
-							</View>
-						</KeyboardAvoidingView>
-						<View style={styles.borderTop}></View>
-						</>
-					}
-					ListEmptyComponent={
-						isLoading ? (
-						<View style={styles.notData}>
-							<AutoHeightImage width={74} source={require("../assets/img/not_data.png")} />
-							<Text style={styles.notDataText}>등록된 중고상품이 없습니다.</Text>
+							)}
+							<TouchableOpacity 
+								style={styles.schFilterBtn2}
+								activeOpacity={opacityVal}
+								onPress={()=>{setVisible3(true)}}
+							>
+								<Text style={styles.schFilterBtn2Text}>상세필터</Text>
+								<AutoHeightImage width={17} source={require("../assets/img/icon_filter.png")} />
+							</TouchableOpacity>
 						</View>
-						) : (
-							<View style={[styles.indicator]}>
-								<ActivityIndicator size="large" />
-							</View>
-						)
-					}
-				/>
+					</KeyboardAvoidingView>
+					<View style={styles.borderTop}></View>
+					</>
+				}
+				ListEmptyComponent={
+					isLoading ? (
+					<View style={styles.notData}>
+						<AutoHeightImage width={74} source={require("../assets/img/not_data.png")} />
+						<Text style={styles.notDataText}>등록된 중고상품이 없습니다.</Text>
+					</View>
+					) : (
+						<View style={[styles.indicator]}>
+							<ActivityIndicator size="large" />
+						</View>
+					)
+				}
+			/>
 			
-				
-
 			{!visible2 ? (
 			<Animated.View 
 				style={{
@@ -526,7 +540,7 @@ const Home = (props) => {
 			>
 				<TouchableOpacity 
 					activeOpacity={opacityVal}
-					onPress={()=>{setVisible2(true)}}
+					onPress={()=>{writeChk()}}
 				>
 					<Animated.View
 						style={{
@@ -572,7 +586,7 @@ const Home = (props) => {
 									key = {index}
 									style={styles.myfactoryBtn}
 									activeOpacity={opacityVal}
-									onPress={()=>{changeFac(item.fc_idx)}}
+									onPress={()=>{changeFac(item.fc_idx, (index+1))}}
 								>
 									<Text style={[styles.myfactoryBtnText, item.fc_use == 1 ? styles.myfactoryBtnTextOn : null]}>
 											{item.fc_name}({item.fc_dong})
@@ -581,12 +595,6 @@ const Home = (props) => {
 							)
 						})
 					) : null}
-					{/* <TouchableOpacity 
-						style={[styles.myfactoryBtn, styles.myfactoryBtn2]}
-						activeOpacity={opacityVal}
-					>
-						<Text style={styles.myfactoryBtnText}>공장2(상동)</Text>
-					</TouchableOpacity> */}
 					<TouchableOpacity 
 						style={[styles.myfactoryBtn, styles.myfactoryBtn2]}
 						activeOpacity={opacityVal}
@@ -825,4 +833,13 @@ const styles = StyleSheet.create({
 	indicator: {width:widnowWidth,height:widnowHeight,backgroundColor:'rgba(255,255,255,0.5)',display:'flex', alignItems:'center', justifyContent:'center',position:'absolute',left:0,top:0,},
 })
 
-export default Home
+//export default Home
+export default connect(
+	({ User }) => ({
+		userInfo: User.userInfo, //회원정보
+	}),
+	(dispatch) => ({
+		member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+		member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+	})
+)(Home);

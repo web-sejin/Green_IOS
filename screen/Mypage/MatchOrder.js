@@ -55,7 +55,7 @@ const MatchOrder = ({navigation, route}) => {
 			let arrItems = args.arrItems;
 			//console.log('args ', args);
 			if(responseJson.result === 'success' && responseJson){
-				console.log('order_list_match2 : ',responseJson);
+				//console.log('order_list_match2 : ',responseJson);
 				setOdList(responseJson.data);
         setTotalPage(responseJson.total_page);  
 			}else{
@@ -125,7 +125,7 @@ const MatchOrder = ({navigation, route}) => {
             style={[styles.btn, styles.btn2, styles.btn3]}
             activeOpacity={opacityVal}
             onPress={()=>{
-              setMcIdx(item.pd_idx);
+              setMcIdx(item.mc_idx);
               setVisible(true);
             }}
           >
@@ -143,6 +143,8 @@ const MatchOrder = ({navigation, route}) => {
       article_idx: mcIdx,
       so_score: score,
 		}; 
+
+    console.log(formData);
 
     Api.send('POST', 'save_score', formData, (args)=>{
 			let resultItem = args.resultItem;
@@ -163,7 +165,7 @@ const MatchOrder = ({navigation, route}) => {
   }
 
 	return (
-		<SafeAreaView style={styles.safeAreaView}>
+		<SafeAreaView style={styles.safeAreaView}>      
 			<Header navigation={navigation} headertitle={'발주내역'} />
       <FlatList
         data={odList}

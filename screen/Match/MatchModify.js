@@ -534,7 +534,9 @@ const MatchModify = ({navigation, route}) => {
 			mc_price:price
 		};
 
-		if(floorFile != ''){ formData.mc_file =  {'uri': floorFileUri, 'type': 'image/png', 'name': 'floorFile.png'}; }
+		if(floorFile != ''){ 
+			formData.mc_file =  {'uri': floorFileUri, 'type': floorFileType, 'name': floorFile}; 
+		}
 		if(img1Path != ''){ 
 			formData.mf_img1 =  {'uri': img1Path, 'type': 'image/png', 'name': 'mf_img1.png'}; 
 			formData.mf_idx_0 = img1Idx;
@@ -628,7 +630,7 @@ const MatchModify = ({navigation, route}) => {
 				navigation.navigate('Match', {isSubmit: true});
 			}else{
 				console.log('결과 출력 실패!', responseJson);
-				//ToastMessage(responseJson.result_text);
+				ToastMessage(responseJson.result_text);
 			}
 		});
 	}
@@ -702,7 +704,7 @@ const MatchModify = ({navigation, route}) => {
   }
 
 	return (
-		<SafeAreaView style={styles.safeAreaView}>
+		<SafeAreaView style={styles.safeAreaView}>			
 			<Header navigation={navigation} headertitle={'매칭 글수정'} />
 			<KeyboardAwareScrollView>
 				<View style={styles.registArea}>

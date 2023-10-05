@@ -116,6 +116,7 @@ const MatchView = (props) => {
 			}else{
 				//setItemList([]);				
 				console.log('결과 출력 실패!', responseJson);
+        navigation.navigate('Match', {isSubmit: true});
 			}
 		});
 

@@ -27,6 +27,7 @@
     "axios": "1.4.0",
     "react": "17.0.2",
     "react-native": "0.68.2",
+    "react-native-asset": "^2.1.1",
     "react-native-auto-height-image": "3.2.4",
     "react-native-bit-swiper": "^1.1.0",
     "react-native-calendars": "1.1266.0",
