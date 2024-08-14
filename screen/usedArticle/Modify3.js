@@ -366,6 +366,8 @@ const Modify3 = ({navigation, route}) => {
 
 		let resPrice = (price).split(',').join('');
 
+		setIsLoading(false);
+
 		const formData = {
 			is_api:1,
 			pd_idx:idx,	
@@ -474,6 +476,7 @@ const Modify3 = ({navigation, route}) => {
 
 			if(responseJson.result === 'success'){
 				console.log('성공 : ',responseJson);				
+				setIsLoading(true);
 				if(route.params.returnNavi){
 					navigation.navigate(route.params.returnNavi, {isSubmit: true});
 				}else{
@@ -481,13 +484,14 @@ const Modify3 = ({navigation, route}) => {
 				}
 			}else{
 				console.log('결과 출력 실패!', resultItem);
+				setIsLoading(true);
 				ToastMessage(responseJson.result_text);
 			}
 		});
 	}
 
   const getData = async () => {
-    setIsLoading(true);
+    setIsLoading(false);
     await Api.send('GET', 'view_product', {'is_api': 1, pd_idx:idx}, (args)=>{
 			let resultItem = args.resultItem;
 			let responseJson = args.responseJson;
@@ -530,7 +534,7 @@ const Modify3 = ({navigation, route}) => {
 				setContent(responseJson.pd_contents);
 				setPeriod((responseJson.pd_bidding_day).toString());
 
-        setIsLoading(false);
+        setIsLoading(true);
 			}else{
 				//setItemList([]);				
 				console.log('결과 출력 실패!');
@@ -539,7 +543,7 @@ const Modify3 = ({navigation, route}) => {
   }
 
 	return (
-		<SafeAreaView style={styles.safeAreaView}>
+		<SafeAreaView style={styles.safeAreaView}>			
 			<Header navigation={navigation} headertitle={'중고기계/장비 글수정'} />
 			<KeyboardAwareScrollView>
 				<View style={styles.registArea}>
@@ -916,7 +920,7 @@ const Modify3 = ({navigation, route}) => {
 				</View>
       </Modal>
 
-      {isLoading ? (
+      {!isLoading ? (
 			<View style={[styles.indicator]}>
 				<ActivityIndicator size="large" />
 			</View>

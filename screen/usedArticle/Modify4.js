@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
+import {ActivityIndicator, Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Pressable, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
@@ -401,6 +401,8 @@ const Modify4 = ({navigation, route}) => {
 
 		if(content == ""){ ToastMessage('내용을 입력해 주세요.'); return false; }
 
+		setIsLoading(false);
+
 		const formData = {
 			is_api:1,
       pd_idx:idx,		
@@ -507,6 +509,7 @@ const Modify4 = ({navigation, route}) => {
 
 			if(responseJson.result === 'success'){
 				console.log('성공 : ',responseJson);				
+				setIsLoading(true);
 				if(route.params.returnNavi){
 					navigation.navigate(route.params.returnNavi);
 				}else{
@@ -514,13 +517,14 @@ const Modify4 = ({navigation, route}) => {
 				}
 			}else{
 				console.log('결과 출력 실패!', resultItem);
+				setIsLoading(true);
 				ToastMessage(responseJson.result_text);
 			}
 		});
 	}
 
   const getData = async () => {
-    setIsLoading(true);
+    setIsLoading(false);
     await Api.send('GET', 'view_product', {'is_api': 1, pd_idx:idx}, (args)=>{
 			let resultItem = args.resultItem;
 			let responseJson = args.responseJson;
@@ -560,7 +564,7 @@ const Modify4 = ({navigation, route}) => {
 				setPayMethod(responseJson.pd_method);
 				setContent(responseJson.pd_contents);
 
-        setIsLoading(false);
+        setIsLoading(true);
 			}else{
 				//setItemList([]);				
 				console.log('결과 출력 실패!');
@@ -569,7 +573,7 @@ const Modify4 = ({navigation, route}) => {
   }
 
 	return (
-		<SafeAreaView style={styles.safeAreaView}>
+		<SafeAreaView style={styles.safeAreaView}>			
 			<Header navigation={navigation} headertitle={'폐기물 글수정'} />
 			<KeyboardAwareScrollView>
 				<View style={styles.registArea}>
@@ -918,6 +922,12 @@ const Modify4 = ({navigation, route}) => {
 					/>
 				</View>
       </Modal>
+			
+			{!isLoading ? (
+			<View style={[styles.indicator]}>
+				<ActivityIndicator size="large" />
+			</View>
+			) : null}
 		</SafeAreaView>
 	)
 }
@@ -968,6 +978,7 @@ const styles = StyleSheet.create({
 	nextBtnText: {fontFamily:Font.NotoSansBold,fontSize:16,lineHeight:58,color:'#fff'},
 	inputUnit: {position:'absolute',top:0,right:20,},
 	inputUnitText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:56,color:'#000'},
+	indicator: {width:widnowWidth,height:widnowHeight,backgroundColor:'rgba(255,255,255,0.5)',display:'flex', alignItems:'center', justifyContent:'center',position:'absolute',left:0,top:0,},
 })
 
 export default Modify4

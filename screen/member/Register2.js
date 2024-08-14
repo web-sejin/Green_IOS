@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Image, Pressable, Platform, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList,} from 'react-native';
+import {Alert, Button, Dimensions, View, Text, TextInput, TouchableOpacity, Modal, Image, Pressable, Platform, StyleSheet, ScrollView, ToastAndroid, Keyboard, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AutoHeightImage from "react-native-auto-height-image";
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
@@ -89,36 +89,36 @@ const Register2 = ({navigation, route}) => {
 				setModal7(false);				
 				setToastModal(false);
 				setToastText('');
-				setMbHp('');
-				setCertNumber('');
-				setCertNumberSt(false);
-				setMbEmail('');
-				setMbEmailSt(false);
-				setMbNickname('');
-				setMbNicknameSt(false);
-				setPw('');
-				setPw2('');
-				setMbCompanyNumber('');
-				setMbCompanyName('');
-				setMbName('');
-				setMbCompanyAddr('');
-				setPickture();
-				setState(0);
-				setTimeStamp('');
-				setPhoneInterval(false);
-				setLocation('');
-				setLocation2('');
-				setPostcodeOn(false);
-				setFactName1('');
-				setFactCode1('');
-				setFactAddr1('');
-				setFactAddrDt1('');
-				setFactName2('');
-				setFactCode2('');
-				setFactAddr2('');
-				setFactAddrDt2('');
-				setFactActive();
-				setRansoo('');
+				// setMbHp('');
+				// setCertNumber('');
+				// setCertNumberSt(false);
+				// setMbEmail('');
+				// setMbEmailSt(false);
+				// setMbNickname('');
+				// setMbNicknameSt(false);
+				// setPw('');
+				// setPw2('');
+				// setMbCompanyNumber('');
+				// setMbCompanyName('');
+				// setMbName('');
+				// setMbCompanyAddr('');
+				// setPickture();
+				// setState(0);
+				// setTimeStamp('');
+				// setPhoneInterval(false);
+				// setLocation('');
+				// setLocation2('');
+				// setPostcodeOn(false);
+				// setFactName1('');
+				// setFactCode1('');
+				// setFactAddr1('');
+				// setFactAddrDt1('');
+				// setFactName2('');
+				// setFactCode2('');
+				// setFactAddr2('');
+				// setFactAddrDt2('');
+				// setFactActive();
+				// setRansoo('');
 			}
 		}else{
 			//console.log("isFocused");
@@ -207,7 +207,7 @@ const Register2 = ({navigation, route}) => {
 		}
 
 		if(tcounter <= 0){
-			ToastMessage('인증시간이 만료되었습니다.\n인증번호를 재발송 받아주세요.');
+			ToastMessage('인증이 완료되었거나 인증시간이 만료되었습니다.\n인증번호를 재발송 받아주세요.');
 			return false;
 		 }
 
@@ -215,6 +215,7 @@ const Register2 = ({navigation, route}) => {
 			ToastMessage('본인인증이 완료되었습니다.');
 			setCertNumberSt(true);
 			timer_stop();
+			Keyboard.dismiss();
 		 }else{
 			ToastMessage('인증번호가 일치하지 않습니다.\n다시 확인해 주세요.');
 			return false;
@@ -287,10 +288,12 @@ const Register2 = ({navigation, route}) => {
 			return false;
 		}
 
-		setModal1(true);
+		//setModal1(true);
+		navigation.navigate('Register3', {mbHp:mbHp, mbEmail:mbEmail, mbNickname:mbNickname});
 	}
 
 	function nextStep2(){
+		/*
 		if(pw == ""){
 			setToastText('비밀번호를 입력해 주세요.');
 			setToastModal(true);
@@ -319,7 +322,7 @@ const Register2 = ({navigation, route}) => {
 			setTimeout(()=>{ setToastModal(false) },2000);
 			return false;
 		}
-
+		*/
 		setModal2(true);
 	}
 
@@ -475,7 +478,7 @@ const Register2 = ({navigation, route}) => {
 		}		
 		
 
-		Api.send('GET', '	validation_email', {email: mbEmail, is_api: 1}, (args)=>{
+		Api.send('GET', 'validation_email', {email: mbEmail, is_api: 1}, (args)=>{
 			let resultItem = args.resultItem;
 			let arrItems = args.arrItems;
 			let responseJson = args.responseJson;
@@ -500,7 +503,7 @@ const Register2 = ({navigation, route}) => {
 			return false;
 		}
 
-		Api.send('GET', '	validation_nick', {nick: mbNickname, is_api: 1}, (args)=>{
+		Api.send('GET', 'validation_nick', {nick: mbNickname, is_api: 1}, (args)=>{
 			let resultItem = args.resultItem;
 			let arrItems = args.arrItems;
 			let responseJson = args.responseJson;
@@ -538,7 +541,14 @@ const Register2 = ({navigation, route}) => {
 
 		if(state){
 			if(mbcompanyNumber == ''){
-				setToastText('사업자 번호를 입력해 주세요.');
+				setToastText('사업자 번호 10자리를 입력해 주세요.');
+				setToastModal(true);
+				setTimeout(()=>{ setToastModal(false) },2000);
+				return false;
+			}
+
+			if(mbcompanyNumber.length != 10){
+				setToastText('사업자 번호 10자리를 입력해 주세요.');
 				setToastModal(true);
 				setTimeout(()=>{ setToastModal(false) },2000);
 				return false;
@@ -680,125 +690,131 @@ const Register2 = ({navigation, route}) => {
 	return (
 		<SafeAreaView style={styles.safeAreaView}>
 			<Header navigation={navigation} headertitle={'휴대폰, 이메일 설정'} />
-			<KeyboardAwareScrollView>
-				<View style={styles.registArea}>
-					<View style={[styles.registBox, styles.registBox3, styles.borderBot]}>
-						<View style={styles.alertBox}>
-							<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
-							<Text style={styles.alertBoxText}>등록된 휴대폰 번호로 거래를 하실 수 있습니다.</Text>
-						</View>
+			<KeyboardAwareScrollView keyboardShouldPersistTaps="always">
+				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+					<View style={styles.registArea}>
+						<View style={[styles.registBox, styles.registBox3, styles.borderBot]}>
+							<View style={styles.alertBox}>
+								<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
+								<Text style={styles.alertBoxText}>등록된 휴대폰 번호로 거래를 하실 수 있습니다.</Text>
+							</View>
 
-						<View style={[styles.typingBox, styles.mgTop30]}>
-							<View style={styles.typingTitle}>
-								<Text style={styles.typingTitleText}>휴대폰 번호</Text>
-							</View>
-							<View style={[styles.typingInputBox, styles.typingFlexBox]}>
-								<TextInput
-									value={mbHp}
-									keyboardType = 'numeric'
-									onChangeText={(v) => {
-										const phone = phoneFormat(v);
-										setMbHp(phone);
-										setCertNumber('');
-										setCertNumberSt(false);
-									}}
-									placeholder={"휴대폰 번호를 입력해 주세요."}
-									style={[styles.input, styles.input2]}
-									placeholderTextColor={"#8791A1"}
-									maxLength={13}
-								/>
-								<TouchableOpacity 
-									style={styles.certChkBtn}
-									activeOpacity={opacityVal}
-									onPress={() => {
-										//console.log("phoneIntervel : ",phoneIntervel);
-										!phoneIntervel ? ( _sendSmsButton() ) : null
-										!phoneIntervel ? ( setCertNumber('') ) : null
-										!phoneIntervel ? ( setCertNumberSt(false) ) : null
-									}}
-								>
-									<Text style={styles.certChkBtnText}>인증번호</Text>
-								</TouchableOpacity>
-							</View>
-							<View style={[styles.typingInputBox]}>
-								<TextInput
-									value={certNumber}
-									keyboardType = 'numeric'
-									onChangeText={(v) => {setCertNumber(v)}}
-									placeholder={"인증번호 입력"}
-									style={[styles.input]}
-									placeholderTextColor={"#8791A1"}
-									maxLength={11}
-								/>
-								<View style={styles.timeBox}>
-									<Text style={styles.timeBoxText}>
-										{timeStamp}
-									</Text>
+							<View style={[styles.typingBox, styles.mgTop30]}>
+								<View style={styles.typingTitle}>
+									<Text style={styles.typingTitleText}>휴대폰 번호</Text>
 								</View>
-								<TouchableOpacity 
-									style={styles.certChkBtn2}
-									activeOpacity={opacityVal}
-									onPress={() => {_authComplete()}}
-								>
-									<Text style={styles.certChkBtnText2}>인증번호 확인</Text>
-								</TouchableOpacity>
+								<View style={[styles.typingInputBox, styles.typingFlexBox]}>
+									<TextInput
+										value={mbHp}
+										keyboardType = 'numeric'
+										onChangeText={(v) => {
+											const phone = phoneFormat(v);
+											setMbHp(phone);
+											setCertNumber('');
+											setCertNumberSt(false);
+										}}
+										placeholder={"휴대폰 번호를 입력해 주세요."}
+										style={[styles.input, styles.input2]}
+										placeholderTextColor={"#8791A1"}
+										maxLength={13}
+									/>
+									<TouchableOpacity 
+										style={[styles.certChkBtn, phoneIntervel ? styles.certDisabled : null]}
+										activeOpacity={opacityVal}
+										onPress={() => {
+											//console.log("phoneIntervel : ",phoneIntervel);
+											!phoneIntervel ? ( _sendSmsButton() ) : null
+											!phoneIntervel ? ( setCertNumber('') ) : null
+											!phoneIntervel ? ( setCertNumberSt(false) ) : null
+										}}
+									>
+										<Text style={[styles.certChkBtnText, phoneIntervel ? styles.certDisabledText : null]}>
+											인증번호
+										</Text>
+									</TouchableOpacity>
+								</View>
+								<View style={[styles.typingInputBox]}>
+									<TextInput
+										value={certNumber}
+										keyboardType = 'numeric'
+										onChangeText={(v) => {setCertNumber(v)}}
+										placeholder={"인증번호 입력"}
+										style={[styles.input]}
+										placeholderTextColor={"#8791A1"}
+										maxLength={11}
+									/>
+									<View style={styles.timeBox}>
+										<Text style={styles.timeBoxText}>
+											{timeStamp}
+										</Text>
+									</View>
+									<TouchableOpacity 
+										style={[styles.certChkBtn2, certNumberSt ? styles.certChkBtn2Disabled : null]}
+										activeOpacity={opacityVal}
+										onPress={() => {_authComplete()}}
+									>
+										<Text style={[styles.certChkBtnText2, certNumberSt ? styles.certChkBtn2DisabledText : null]}>
+											인증번호 확인
+										</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</View>
+
+						<View style={[styles.registBox, styles.borderTop, styles.paddBot13]}>
+							<View style={[styles.typingBox]}>
+								<View style={styles.typingTitle}>
+									<Text style={styles.typingTitleText}>이메일</Text>
+								</View>
+								<View style={[styles.typingInputBox, styles.typingFlexBox]}>
+									<TextInput
+										keyboardType='email-address'
+										value={mbEmail}
+										onChangeText={(v) => {
+											setMbEmailSt(false);
+											setMbEmail(v);
+										}}
+										placeholder={'이메일을 입력해 주세요.'}
+										placeholderTextColor="#C5C5C6"
+										style={[styles.input, styles.input2]}
+									/>
+									<TouchableOpacity 
+										style={styles.certChkBtn}
+										activeOpacity={opacityVal}
+										onPress={() => {emailChk()}}
+									>
+										<Text style={styles.certChkBtnText}>중복확인</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+
+							<View style={[styles.typingBox, styles.mgTop35]}>
+								<View style={styles.typingTitle}>
+									<Text style={styles.typingTitleText}>닉네임</Text>
+								</View>
+								<View style={[styles.typingInputBox, styles.typingFlexBox]}>
+									<TextInput
+										value={mbNickname}									
+										onChangeText={(v) => {
+											setMbNicknameSt(false);
+											setMbNickname(v);
+										}}
+										placeholder={"닉네임을 입력해 주세요."}
+										style={[styles.input, styles.input2]}
+										placeholderTextColor={"#8791A1"}
+									/>
+									<TouchableOpacity 
+										style={styles.certChkBtn}
+										activeOpacity={opacityVal}
+										onPress={() => {nickChk()}}
+									>
+										<Text style={styles.certChkBtnText}>중복확인</Text>
+									</TouchableOpacity>
+								</View>
 							</View>
 						</View>
 					</View>
-
-					<View style={[styles.registBox, styles.borderTop, styles.paddBot13]}>
-						<View style={[styles.typingBox]}>
-							<View style={styles.typingTitle}>
-								<Text style={styles.typingTitleText}>이메일</Text>
-							</View>
-							<View style={[styles.typingInputBox, styles.typingFlexBox]}>
-								<TextInput
-									keyboardType='email-address'
-									value={mbEmail}
-									onChangeText={(v) => {
-										setMbEmailSt(false);
-										setMbEmail(v);
-									}}
-									placeholder={'이메일을 입력해 주세요.'}
-									placeholderTextColor="#C5C5C6"
-									style={[styles.input, styles.input2]}
-								/>
-								<TouchableOpacity 
-									style={styles.certChkBtn}
-									activeOpacity={opacityVal}
-									onPress={() => {emailChk()}}
-								>
-									<Text style={styles.certChkBtnText}>중복확인</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-
-						<View style={[styles.typingBox, styles.mgTop35]}>
-							<View style={styles.typingTitle}>
-								<Text style={styles.typingTitleText}>닉네임</Text>
-							</View>
-							<View style={[styles.typingInputBox, styles.typingFlexBox]}>
-								<TextInput
-									value={mbNickname}									
-									onChangeText={(v) => {
-										setMbNicknameSt(false);
-										setMbNickname(v);
-									}}
-									placeholder={"닉네임을 입력해 주세요."}
-									style={[styles.input, styles.input2]}
-									placeholderTextColor={"#8791A1"}
-								/>
-								<TouchableOpacity 
-									style={styles.certChkBtn}
-									activeOpacity={opacityVal}
-									onPress={() => {nickChk()}}
-								>
-									<Text style={styles.certChkBtnText}>중복확인</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
-				</View>
+				</TouchableWithoutFeedback>
 			</KeyboardAwareScrollView>
 			<View style={styles.nextFix}>
 				<TouchableOpacity 
@@ -827,42 +843,44 @@ const Register2 = ({navigation, route}) => {
 					<Text style={styles.headerTitle}>비밀번호 설정</Text>
 					</>
 				</View>
-				<KeyboardAwareScrollView>
-					<View style={styles.registArea}>
-						<View style={[styles.registBox, styles.registBox3]}>
-							<View style={styles.alertBox}>
-								<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
-								<Text style={styles.alertBoxText}>비밀번호는 일반 로그인에 사용됩니다.</Text>
-								<Text style={[styles.alertBoxText, styles.alertBoxText2]}>6자 이상 영문, 숫자, 특수문자만 가능합니다.</Text>
-							</View>
+				<KeyboardAwareScrollView keyboardShouldPersistTaps="always">
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={styles.registArea}>
+							<View style={[styles.registBox, styles.registBox3]}>
+								<View style={styles.alertBox}>
+									<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
+									<Text style={styles.alertBoxText}>비밀번호는 일반 로그인에 사용됩니다.</Text>
+									<Text style={[styles.alertBoxText, styles.alertBoxText2]}>6자 이상 영문, 숫자, 특수문자만 가능합니다.</Text>
+								</View>
 
-							<View style={[styles.typingBox, styles.mgTop30]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>비밀번호</Text>
-								</View>
-								<View style={[styles.typingInputBox, styles.typingFlexBox]}>
-									<TextInput
-										secureTextEntry={true}
-										value={pw}
-										onChangeText={(v) => {setPw(v)}}
-										placeholder={'비밀번호 입력(6자 이상 영문, 숫자, 특수문자)'}
-										placeholderTextColor="#8791A1"
-										style={[styles.input]}
-									/>
-								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										secureTextEntry={true}
-										value={pw2}
-										onChangeText={(v) => {setPw2(v)}}
-										placeholder={'비밀번호 재입력'}
-										placeholderTextColor="#8791A1"
-										style={[styles.input]}
-									/>
+								<View style={[styles.typingBox, styles.mgTop30]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>비밀번호</Text>
+									</View>
+									<View style={[styles.typingInputBox, styles.typingFlexBox]}>
+										<TextInput
+											secureTextEntry={true}
+											value={pw}
+											onChangeText={(v) => {setPw(v)}}
+											placeholder={'비밀번호 입력(6자 이상 영문, 숫자, 특수문자)'}
+											placeholderTextColor="#8791A1"
+											style={[styles.input]}
+										/>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											secureTextEntry={true}
+											value={pw2}
+											onChangeText={(v) => {setPw2(v)}}
+											placeholder={'비밀번호 재입력'}
+											placeholderTextColor="#8791A1"
+											style={[styles.input]}
+										/>
+									</View>
 								</View>
 							</View>
 						</View>
-					</View>
+					</TouchableWithoutFeedback>
 				</KeyboardAwareScrollView>
 				<View style={styles.nextFix}>
 					<TouchableOpacity 
@@ -892,180 +910,183 @@ const Register2 = ({navigation, route}) => {
 					<Text style={styles.headerTitle}>공장 및 인증 정보 설정</Text>
 					</>
 				</View>
-				<KeyboardAwareScrollView>
-					<View style={styles.registArea}>
-						<View style={[styles.registBox, styles.registBox3]}>
-							<View style={styles.alertBox}>
-								<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
-								<Text style={styles.alertBoxText}>내 공장은 최대 2개 등록 가능합니다.</Text>
-								<Text style={[styles.alertBoxText, styles.alertBoxText2]}>최소 1개 등록 해야 하며, 가입 후 변경 가능합니다.</Text>
-							</View>
-
-							<View style={[styles.typingBox, styles.mgTop30]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>선택된 공장</Text>
+				<KeyboardAwareScrollView keyboardShouldPersistTaps="always">
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={styles.registArea}>
+							<View style={[styles.registBox, styles.registBox3]}>
+								<View style={styles.alertBox}>
+									<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
+									<Text style={styles.alertBoxText}>내 공장은 최대 2개 등록 가능합니다.</Text>
+									<Text style={[styles.alertBoxText, styles.alertBoxText2]}>최소 1개 등록 해야 하며, 가입 후 변경 가능합니다.</Text>
 								</View>
 
-								{my1 ? (
-								<TouchableOpacity 
-									style={[styles.typingInputBox, styles.typingFactory, factActive=='1' ? styles.typingFactoryOn : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{setModal5(true)}}
-								>
-									<Text style={[styles.myFactoryText, styles.myFactoryText2, factActive=='1' ? styles.myFactoryTextOn : null]}>
-										{factName1}
-									</Text>
-									<AutoHeightImage width={3} source={require("../../assets/img/icon_dot.png")} style={styles.myFactoryArr} />
-								</TouchableOpacity>
-								) : (
-								<TouchableOpacity 
-									style={[styles.typingInputBox, styles.typingFactory]}
-									activeOpacity={opacityVal}
-									onPress={()=>{setModal3(true)}}
-								>
-									<Text style={styles.myFactoryText}>
-										내 공장1 등록하기
-									</Text>
-									<AutoHeightImage width={7} source={require("../../assets/img/icon_arrow2.png")} style={styles.myFactoryArr} />
-								</TouchableOpacity>
-								)}
+								<View style={[styles.typingBox, styles.mgTop30]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>선택된 공장</Text>
+									</View>
 
-								{my2 ? (
-								<TouchableOpacity 
-									style={[styles.typingInputBox, styles.typingFactory, factActive=='2' ? styles.typingFactoryOn : null]}
-									activeOpacity={opacityVal}
-									onPress={()=>{setModal7(true)}}
-								>
-									<Text style={[styles.myFactoryText, styles.myFactoryText2, factActive=='2' ? styles.myFactoryTextOn : null]}>
-										{factName2}
-									</Text>
-									<AutoHeightImage width={3} source={require("../../assets/img/icon_dot.png")} style={styles.myFactoryArr} />
-								</TouchableOpacity>
-								) : (
-								<TouchableOpacity 
-									style={[styles.typingInputBox, styles.typingFactory]}
-									activeOpacity={opacityVal}									
-									onPress={()=>{
-										my1 ? ( setModal6(true) ) : ( showToast() )										
-									}}
-								>
-									<Text style={styles.myFactoryText}>
-									내 공장2 등록하기
-									</Text>
-									<AutoHeightImage width={7} source={require("../../assets/img/icon_arrow2.png")} style={styles.myFactoryArr} />
-								</TouchableOpacity>
-								)}
-							</View>
-
-							<View style={[styles.alertBox, styles.mgTop35]}>
-								<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
-								<Text style={styles.alertBoxText}>사업자등록증을 등록하여 인증된 회원들과 거래를 시작해 보세요. 가입 후에도 등록 가능합니다.</Text>
-							</View>
-							{state == 0 ? (
-							<TouchableOpacity
-								style={styles.addBtn}
-								activeOpacity={opacityVal}
-								onPress={() => {setState(1)}}
-							>
-								<AutoHeightImage width={13} source={require("../../assets/img/icon_plus.png")} style={styles.icon_add} />
-								<Text style={styles.addBtnText}>등록</Text>
-							</TouchableOpacity>
-							) : null}
-						</View>
-						{state == 1 ? (
-						<View style={[styles.registBox, styles.registBox2]}>
-							<View style={[styles.typingBox]}>
-								<View style={[styles.typingTitle, styles.typingTitleFlex]}>
-									<Text style={styles.typingTitleText}>사업자 번호</Text>
+									{my1 ? (
 									<TouchableOpacity 
-										style={styles.resetBtn}
+										style={[styles.typingInputBox, styles.typingFactory, factActive=='1' ? styles.typingFactoryOn : null]}
 										activeOpacity={opacityVal}
-										onPress={() => {resetCompany()}}
+										onPress={()=>{setModal5(true)}}
 									>
-										<AutoHeightImage width={13} source={require("../../assets/img/icon_reset.png")} style={styles.icon_reset} />
-										<Text style={styles.resetBtnText}>초기화</Text>
+										<Text style={[styles.myFactoryText, styles.myFactoryText2, factActive=='1' ? styles.myFactoryTextOn : null]}>
+											{factName1}
+										</Text>
+										<AutoHeightImage width={3} source={require("../../assets/img/icon_dot.png")} style={styles.myFactoryArr} />
+									</TouchableOpacity>
+									) : (
+									<TouchableOpacity 
+										style={[styles.typingInputBox, styles.typingFactory]}
+										activeOpacity={opacityVal}
+										onPress={()=>{setModal3(true)}}
+									>
+										<Text style={styles.myFactoryText}>
+											내 공장1 등록하기
+										</Text>
+										<AutoHeightImage width={7} source={require("../../assets/img/icon_arrow2.png")} style={styles.myFactoryArr} />
+									</TouchableOpacity>
+									)}
+
+									{my2 ? (
+									<TouchableOpacity 
+										style={[styles.typingInputBox, styles.typingFactory, factActive=='2' ? styles.typingFactoryOn : null]}
+										activeOpacity={opacityVal}
+										onPress={()=>{setModal7(true)}}
+									>
+										<Text style={[styles.myFactoryText, styles.myFactoryText2, factActive=='2' ? styles.myFactoryTextOn : null]}>
+											{factName2}
+										</Text>
+										<AutoHeightImage width={3} source={require("../../assets/img/icon_dot.png")} style={styles.myFactoryArr} />
+									</TouchableOpacity>
+									) : (
+									<TouchableOpacity 
+										style={[styles.typingInputBox, styles.typingFactory]}
+										activeOpacity={opacityVal}									
+										onPress={()=>{
+											my1 ? ( setModal6(true) ) : ( showToast() )										
+										}}
+									>
+										<Text style={styles.myFactoryText}>
+										내 공장2 등록하기
+										</Text>
+										<AutoHeightImage width={7} source={require("../../assets/img/icon_arrow2.png")} style={styles.myFactoryArr} />
+									</TouchableOpacity>
+									)}
+								</View>
+
+								<View style={[styles.alertBox, styles.mgTop35]}>
+									<AutoHeightImage width={20} source={require("../../assets/img/icon_alert.png")} style={styles.icon_alert} />
+									<Text style={styles.alertBoxText}>사업자등록증을 등록하여 인증된 회원들과 거래를 시작해 보세요. 가입 후에도 등록 가능합니다.</Text>
+								</View>
+								{state == 0 ? (
+								<TouchableOpacity
+									style={styles.addBtn}
+									activeOpacity={opacityVal}
+									onPress={() => {setState(1)}}
+								>
+									<AutoHeightImage width={13} source={require("../../assets/img/icon_plus.png")} style={styles.icon_add} />
+									<Text style={styles.addBtnText}>등록</Text>
+								</TouchableOpacity>
+								) : null}
+							</View>
+							{state == 1 ? (
+							<View style={[styles.registBox, styles.registBox2]}>
+								<View style={[styles.typingBox]}>
+									<View style={[styles.typingTitle, styles.typingTitleFlex]}>
+										<Text style={styles.typingTitleText}>사업자 번호</Text>
+										<TouchableOpacity 
+											style={styles.resetBtn}
+											activeOpacity={opacityVal}
+											onPress={() => {resetCompany()}}
+										>
+											<AutoHeightImage width={13} source={require("../../assets/img/icon_reset.png")} style={styles.icon_reset} />
+											<Text style={styles.resetBtnText}>초기화</Text>
+										</TouchableOpacity>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											keyboardType = 'numeric'
+											value={mbcompanyNumber}
+											onChangeText={(v) => {setMbCompanyNumber(v)}}
+											placeholder={'사업자 번호를 입력해 주세요.'}
+											placeholderTextColor="#8791A1"
+											style={[styles.input]}
+											maxLength={10}
+										/>
+									</View>
+								</View>
+
+								<View style={[styles.typingBox, styles.mgTop35]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>상호(법인명)</Text>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={mbcompanyName}									
+											onChangeText={(v) => {setMbCompanyName(v)}}
+											placeholder={"상호(법인명)을 입력해 주세요."}
+											style={[styles.input]}
+											placeholderTextColor={"#8791A1"}
+										/>
+									</View>
+								</View>
+
+								<View style={[styles.typingBox, styles.mgTop35]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>성명</Text>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={mbName}									
+											onChangeText={(v) => {setMbName(v)}}
+											placeholder={"성명을 입력해 주세요."}
+											style={[styles.input]}
+											placeholderTextColor={"#8791A1"}
+										/>
+									</View>
+								</View>
+
+								<View style={[styles.typingBox, styles.mgTop35]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>사업장 소재지</Text>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={mbCompanyAddr}									
+											onChangeText={(v) => {setMbCompanyAddr(v)}}
+											placeholder={"사업장 소재지를 입력해 주세요."}
+											style={[styles.input]}
+											placeholderTextColor={"#8791A1"}
+										/>
+									</View>
+								</View>
+
+								<View style={[styles.typingBox, styles.mgTop35]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>사업자등록증 사진</Text>
+									</View>								
+									<TouchableOpacity
+										style={styles.photoBoxBtn}
+										activeOpacity={opacityVal}						
+										onPress={() => {setModal4(true);}}
+									>
+										{picture ? (
+											<AutoHeightImage width={102} source={{uri: picture}} style={[styles.photoBox]} />
+										) : (
+											<AutoHeightImage 
+												width={102} 
+												source={require("../../assets/img/pick_photo.jpg")}
+												style={[styles.photoBox]}
+											/>
+										)}
 									</TouchableOpacity>
 								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										keyboardType = 'numeric'
-										value={mbcompanyNumber}
-										onChangeText={(v) => {setMbCompanyNumber(v)}}
-										placeholder={'사업자 번호를 입력해 주세요.'}
-										placeholderTextColor="#8791A1"
-										style={[styles.input]}
-									/>
-								</View>
 							</View>
-
-							<View style={[styles.typingBox, styles.mgTop35]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>상호(법인명)</Text>
-								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={mbcompanyName}									
-										onChangeText={(v) => {setMbCompanyName(v)}}
-										placeholder={"상호(법인명)을 입력해 주세요."}
-										style={[styles.input]}
-										placeholderTextColor={"#8791A1"}
-									/>
-								</View>
-							</View>
-
-							<View style={[styles.typingBox, styles.mgTop35]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>성명</Text>
-								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={mbName}									
-										onChangeText={(v) => {setMbName(v)}}
-										placeholder={"성명을 입력해 주세요."}
-										style={[styles.input]}
-										placeholderTextColor={"#8791A1"}
-									/>
-								</View>
-							</View>
-
-							<View style={[styles.typingBox, styles.mgTop35]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>사업장 소재지</Text>
-								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={mbCompanyAddr}									
-										onChangeText={(v) => {setMbCompanyAddr(v)}}
-										placeholder={"사업장 소재지를 입력해 주세요."}
-										style={[styles.input]}
-										placeholderTextColor={"#8791A1"}
-									/>
-								</View>
-							</View>
-
-							<View style={[styles.typingBox, styles.mgTop35]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>사업자등록증 사진</Text>
-								</View>								
-								<TouchableOpacity
-									style={styles.photoBoxBtn}
-									activeOpacity={opacityVal}						
-									onPress={() => {setModal4(true);}}
-								>
-									{picture ? (
-										<AutoHeightImage width={102} source={{uri: picture}} style={[styles.photoBox]} />
-									) : (
-										<AutoHeightImage 
-											width={102} 
-											source={require("../../assets/img/pick_photo.jpg")}
-											style={[styles.photoBox]}
-										/>
-									)}
-								</TouchableOpacity>
-							</View>
+							) : null}
 						</View>
-						) : null}
-					</View>
+					</TouchableWithoutFeedback>
 				</KeyboardAwareScrollView>
 				<View style={styles.nextFix}>
 					<TouchableOpacity 
@@ -1095,92 +1116,99 @@ const Register2 = ({navigation, route}) => {
 					<Text style={styles.headerTitle}>내 공장1 정보 등록</Text>
 					</>
 				</View>
-				<KeyboardAwareScrollView>
-					<View style={styles.registArea}>
-						<View	View style={[styles.registBox, styles.registBox3]}>
-							<View style={[styles.typingBox]}>
-								<View style={[styles.typingTitle]}>
-									<Text style={styles.typingTitleText}>공장명</Text>
+				<KeyboardAwareScrollView keyboardShouldPersistTaps="always">
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={styles.registArea}>
+							<View	View style={[styles.registBox, styles.registBox3]}>
+								<View style={[styles.typingBox]}>
+									<View style={[styles.typingTitle]}>
+										<Text style={styles.typingTitleText}>공장명</Text>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={factName1}
+											onChangeText={(v) => {setFactName1(v)}}
+											placeholder={'공장명을 입력해 주세요.'}
+											placeholderTextColor="#8791A1"
+											style={[styles.input]}
+										/>
+									</View>
 								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={factName1}
-										onChangeText={(v) => {setFactName1(v)}}
-										placeholder={'공장명을 입력해 주세요.'}
-										placeholderTextColor="#8791A1"
-										style={[styles.input]}
-									/>
-								</View>
-							</View>
 
-							<View style={[styles.typingBox, styles.mgTop35]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>공장 주소</Text>
-								</View>
-								<View style={styles.findLocal}>
-									<TouchableOpacity 
-										style={styles.findLocalBtn}
-										activeOpacity={opacityVal}
-										onPress={() => {findMyPosition('1')}}
-									>
-										<AutoHeightImage width={16} source={require("../../assets/img/icon_local.png")} />
-										<Text style={styles.findLocalBtnText}>현재 위치로 찾기</Text>
-									</TouchableOpacity>
-								</View>
-								<View style={[styles.typingInputBox, styles.typingFlexBox]}>
-									<TextInput
-										value={factCode1}									
-										keyboardType = 'numeric'
-										onChangeText={(v) => {setFactCode1(v)}}
-										placeholder={"우편번호"}
-										style={[styles.input, styles.input3]}
-										placeholderTextColor={"#8791A1"}
-									/>
-									<TouchableOpacity 
-										style={[styles.certChkBtn, styles.certChkBtn3]}
-										activeOpacity={opacityVal}
-										onPress={() => {setPostcodeOn(!postcodeOn)}}
-									>
-										<Text style={styles.certChkBtnText3}>우편번호 검색</Text>
-									</TouchableOpacity>
-								</View>
-								{postcodeOn ? (
-								<View style={[styles.postcodeBox]}>
-									<Postcode
-										style={{ width: innerWidth, height: 320 }}
-										jsOptions={{ animation: true }}
-										onSelected={data => {
-											//console.log(JSON.stringify(data))
-											const kakaoAddr = data;												
-											setFactCode1(kakaoAddr.zonecode);
-											setFactAddr1(kakaoAddr.address);
-											setFactAddrDt1(kakaoAddr.buildingName);
-											setPostcodeOn(false);
-										}}
-									/>
-								</View>
-								) : null}
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={factAddr1}									
-										onChangeText={(v) => {setFactAddr1(v)}}
-										placeholder={"주소"}
-										style={[styles.input]}
-										placeholderTextColor={"#8791A1"}
-									/>
-								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={factAddrDt1}									
-										onChangeText={(v) => {setFactAddrDt1(v)}}
-										placeholder={"상세 주소"}
-										style={[styles.input]}
-										placeholderTextColor={"#8791A1"}
-									/>
+								<View style={[styles.typingBox, styles.mgTop35]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>공장 주소</Text>
+									</View>
+									<View style={styles.findLocal}>
+										<TouchableOpacity 
+											style={styles.findLocalBtn}
+											activeOpacity={opacityVal}
+											onPress={() => {findMyPosition('1')}}
+										>
+											<AutoHeightImage width={16} source={require("../../assets/img/icon_local.png")} />
+											<Text style={styles.findLocalBtnText}>현재 위치로 찾기</Text>
+										</TouchableOpacity>
+									</View>
+									
+									<View style={[styles.typingInputBox, styles.typingFlexBox]}>
+										<TextInput
+											value={factCode1}									
+											keyboardType = 'numeric'
+											onChangeText={(v) => {setFactCode1(v)}}
+											placeholder={"우편번호"}
+											style={[styles.input, styles.input3]}
+											placeholderTextColor={"#8791A1"}
+											editable={false}
+										/>
+										<TouchableOpacity 
+											style={[styles.certChkBtn, styles.certChkBtn3]}
+											activeOpacity={opacityVal}
+											onPress={() => {setPostcodeOn(!postcodeOn)}}
+										>
+											<Text style={styles.certChkBtnText3}>주소 검색</Text>
+										</TouchableOpacity>
+									</View>
+
+									{postcodeOn ? (
+									<View style={[styles.postcodeBox]}>
+										<Postcode
+											style={{ width: innerWidth, height: 430, marginTop:10, }}
+											jsOptions={{ animation: true }}
+											onSelected={data => {
+												//console.log(JSON.stringify(data))
+												const kakaoAddr = data;												
+												setFactCode1(kakaoAddr.zonecode);
+												setFactAddr1(kakaoAddr.address);
+												setFactAddrDt1(kakaoAddr.buildingName);
+												setPostcodeOn(false);
+											}}
+										/>
+									</View>
+									) : null}
+
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={factAddr1}									
+											onChangeText={(v) => {setFactAddr1(v)}}
+											placeholder={"주소"}
+											style={[styles.input]}
+											placeholderTextColor={"#8791A1"}
+											editable={false}
+										/>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={factAddrDt1}									
+											onChangeText={(v) => {setFactAddrDt1(v)}}
+											placeholder={"상세 주소"}
+											style={[styles.input]}
+											placeholderTextColor={"#8791A1"}
+										/>
+									</View>
 								</View>
 							</View>
 						</View>
-					</View>
+					</TouchableWithoutFeedback>
 				</KeyboardAwareScrollView>								
 				<View style={styles.nextFix}>
 					<TouchableOpacity 
@@ -1193,7 +1221,7 @@ const Register2 = ({navigation, route}) => {
 						<Text style={styles.nextBtnText}>확인</Text>
 					</TouchableOpacity>
 				</View>						
-			</Modal>			
+			</Modal>		
 		
 			<Modal
         visible={modal4}
@@ -1270,7 +1298,7 @@ const Register2 = ({navigation, route}) => {
 					</TouchableOpacity>
 				</View>
       </Modal>
-
+			
 			<Modal
         visible={modal6}
 				animationType={"slide"}
@@ -1288,92 +1316,96 @@ const Register2 = ({navigation, route}) => {
 					<Text style={styles.headerTitle}>내 공장2 정보 등록</Text>
 					</>
 				</View>
-				<KeyboardAwareScrollView>
-					<View style={styles.registArea}>
-						<View	View style={[styles.registBox]}>
-							<View style={[styles.typingBox]}>
-								<View style={[styles.typingTitle]}>
-									<Text style={styles.typingTitleText}>공장명</Text>
+				<KeyboardAwareScrollView keyboardShouldPersistTaps="always">
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={styles.registArea}>
+							<View	View style={[styles.registBox]}>
+								<View style={[styles.typingBox]}>
+									<View style={[styles.typingTitle]}>
+										<Text style={styles.typingTitleText}>공장명</Text>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={factName2}
+											onChangeText={(v) => {setFactName2(v)}}
+											placeholder={'공장명을 입력해 주세요.'}
+											placeholderTextColor="#8791A1"
+											style={[styles.input]}
+										/>
+									</View>
 								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={factName2}
-										onChangeText={(v) => {setFactName2(v)}}
-										placeholder={'공장명을 입력해 주세요.'}
-										placeholderTextColor="#8791A1"
-										style={[styles.input]}
-									/>
-								</View>
-							</View>
 
-							<View style={[styles.typingBox, styles.mgTop35]}>
-								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>공장 주소</Text>
-								</View>
-								<View style={styles.findLocal}>
-									<TouchableOpacity 
-										style={styles.findLocalBtn}
-										activeOpacity={opacityVal}
-										onPress={() => {findMyPosition('2')}}
-									>
-										<AutoHeightImage width={16} source={require("../../assets/img/icon_local.png")} />
-										<Text style={styles.findLocalBtnText}>현재 위치로 찾기</Text>
-									</TouchableOpacity>
-								</View>
-								<View style={[styles.typingInputBox, styles.typingFlexBox]}>
-									<TextInput
-										value={factCode2}									
-										keyboardType = 'numeric'
-										onChangeText={(v) => {setFactCode2(v)}}
-										placeholder={"우편번호"}
-										style={[styles.input, styles.input3]}
-										placeholderTextColor={"#8791A1"}
-									/>
-									<TouchableOpacity 
-										style={[styles.certChkBtn, styles.certChkBtn3]}
-										activeOpacity={opacityVal}
-										onPress={() => {setPostcodeOn2(!postcodeOn2)}}
-									>
-										<Text style={styles.certChkBtnText3}>우편번호 검색</Text>
-									</TouchableOpacity>
-								</View>
-								{postcodeOn2 ? (
-								<View style={[styles.postcodeBox]}>
-									<Postcode
-										style={{ width: innerWidth, height: 320 }}
-										jsOptions={{ animation: true }}
-										onSelected={data => {
-											//console.log(JSON.stringify(data))
-											const kakaoAddr = data;												
-											setFactCode2(kakaoAddr.zonecode);
-											setFactAddr2(kakaoAddr.address);
-											setFactAddrDt2(kakaoAddr.buildingName);
-											setPostcodeOn2(false);
-										}}
-									/>
-								</View>
-								) : null}
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={factAddr2}									
-										onChangeText={(v) => {setFactAddr2(v)}}
-										placeholder={"주소"}
-										style={[styles.input]}
-										placeholderTextColor={"#8791A1"}
-									/>
-								</View>
-								<View style={[styles.typingInputBox]}>
-									<TextInput
-										value={factAddrDt2}									
-										onChangeText={(v) => {setFactAddrDt2(v)}}
-										placeholder={"상세 주소"}
-										style={[styles.input]}
-										placeholderTextColor={"#8791A1"}
-									/>
+								<View style={[styles.typingBox, styles.mgTop35]}>
+									<View style={styles.typingTitle}>
+										<Text style={styles.typingTitleText}>공장 주소</Text>
+									</View>
+									<View style={styles.findLocal}>
+										<TouchableOpacity 
+											style={styles.findLocalBtn}
+											activeOpacity={opacityVal}
+											onPress={() => {findMyPosition('2')}}
+										>
+											<AutoHeightImage width={16} source={require("../../assets/img/icon_local.png")} />
+											<Text style={styles.findLocalBtnText}>현재 위치로 찾기</Text>
+										</TouchableOpacity>
+									</View>
+									<View style={[styles.typingInputBox, styles.typingFlexBox]}>
+										<TextInput
+											value={factCode2}									
+											keyboardType = 'numeric'
+											onChangeText={(v) => {setFactCode2(v)}}
+											placeholder={"우편번호"}
+											style={[styles.input, styles.input3]}
+											placeholderTextColor={"#8791A1"}
+											editable={false}
+										/>
+										<TouchableOpacity 
+											style={[styles.certChkBtn, styles.certChkBtn3]}
+											activeOpacity={opacityVal}
+											onPress={() => {setPostcodeOn2(!postcodeOn2)}}
+										>
+											<Text style={styles.certChkBtnText3}>주소 검색</Text>
+										</TouchableOpacity>
+									</View>
+									{postcodeOn2 ? (
+									<View style={[styles.postcodeBox]}>
+										<Postcode
+											style={{ width: innerWidth, height: 430, marginTop:10, }}
+											jsOptions={{ animation: true }}
+											onSelected={data => {
+												//console.log(JSON.stringify(data))
+												const kakaoAddr = data;												
+												setFactCode2(kakaoAddr.zonecode);
+												setFactAddr2(kakaoAddr.address);
+												setFactAddrDt2(kakaoAddr.buildingName);
+												setPostcodeOn2(false);
+											}}
+										/>
+									</View>
+									) : null}
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={factAddr2}									
+											onChangeText={(v) => {setFactAddr2(v)}}
+											placeholder={"주소"}
+											style={[styles.input]}
+											placeholderTextColor={"#8791A1"}
+											editable={false}
+										/>
+									</View>
+									<View style={[styles.typingInputBox]}>
+										<TextInput
+											value={factAddrDt2}									
+											onChangeText={(v) => {setFactAddrDt2(v)}}
+											placeholder={"상세 주소"}
+											style={[styles.input]}
+											placeholderTextColor={"#8791A1"}
+										/>
+									</View>
 								</View>
 							</View>
 						</View>
-					</View>
+					</TouchableWithoutFeedback>
 				</KeyboardAwareScrollView>								
 				<View style={styles.nextFix}>
 					<TouchableOpacity 
@@ -1498,7 +1530,7 @@ const styles = StyleSheet.create({
 	alertBoxText: {fontFamily:Font.NotoSansRegular,fontSize:14,lineHeight:20,color:'#000',},
 	alertBoxText2: {marginTop:3,},
 	typingBox: {},
-	typingTitle: {},
+	typingTitle: {paddingLeft:9},
 	typingTitleFlex: {display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between',},
 	typingTitleText: {fontFamily:Font.NotoSansRegular,fontSize:15,lineHeight:17,color:'#000',},
 	typingInputBox: {marginTop:10,position:'relative'},
@@ -1552,6 +1584,11 @@ const styles = StyleSheet.create({
 	cancel: {backgroundColor:'#fff',borderRadius:12,marginTop:10,},
 	modalCont2BtnText: {fontFamily:Font.NotoSansMedium,fontSize:19,color:'#007AFF'},
 	modalCont2BtnText2: {color:'#DF4339'},
+
+	certDisabled: {backgroundColor:'#efefef'},
+	certDisabledText: {color:'#aaa'},
+	certChkBtn2Disabled: {backgroundColor:'#efefef'},
+	certChkBtn2DisabledText: {color:'#aaa'},
 });
 
 export default Register2

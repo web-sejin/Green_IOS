@@ -10,7 +10,7 @@ export const WISH_LIST_FLEX = 'user/WISH_LIST_FLEX';
 export const MEMBER_PUSH_LIST = 'user/MEMBER_PUSH_LIST';
 export const MEMBER_KEYWORD_LIST = 'user/MEMBER_KEYWORD_LIST';
 export const MEMBER_LOGOUT = 'user/MEMBER_LOGOUT';
-export const MEMBER_HOSPITAL = 'user/MEMBER_HOSPITAL';
+export const MEMBER_CHAT_CNT = 'user/MEMBER_CHAT_CNT';
 
 export const actionCreators = {
   //회원 로그인
@@ -54,7 +54,7 @@ export const actionCreators = {
   member_info: (user) => async (dispatch) => {
     try {      
       const response = await UserApi.member_info(user);
-      //console.log('member_info ::: ', response);
+      console.log('member_info api ::: ', response);
 
       if (response.result) {
         await dispatch({
@@ -66,6 +66,7 @@ export const actionCreators = {
 					'mb_idx': response.mb_idx,
 					'nick': response.mb_nick,
 					'result': response.result,
+          'result_code': response.result_code,
 					'result_text': response.result_text,
           'recently_notice': response.recently_notice
 				};
@@ -230,6 +231,30 @@ export const actionCreators = {
     } catch (error) {
       // console.log('member_out Error : ', error);
       return { state: false, msg: '' };
+    }
+  },
+
+  //채팅 카운트 변경
+  member_chatCnt: (user) => async (dispatch) => {
+    try {
+      const response = await UserApi.member_chatCnt(user);
+       //console.log('member_chatCnt action ::: ', response);
+
+      if (response.result) {
+        await dispatch({
+          type: MEMBER_CHAT_CNT,
+          payload: response,
+        });
+        return { state: true, total_unread: response.total_unread, total_unread_alarm:response.total_unread_alarm, msg:response.msg };
+      } else {
+        await dispatch({
+          type: MEMBER_CHAT_CNT,
+          payload: null,
+        });
+        return { state: false, msg: response.msg, nick: '' };
+      }
+    } catch (error) {
+      return { state: false, msg: '', nick: '' };
     }
   },
 };

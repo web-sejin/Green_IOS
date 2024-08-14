@@ -322,7 +322,7 @@ const MatchModify = ({navigation, route}) => {
 			const res = await DocumentPicker.pick({
 				type: [DocumentPicker.types.allFiles],
 			})
-			console.log(res[0]);
+			//console.log('res :::::::::::::::: ',res[0]);
 			setFloorFile(res[0].name);
 			setFloorFileType(res[0].type);
 			setFloorFileUri(res[0].uri);
@@ -353,7 +353,7 @@ const MatchModify = ({navigation, route}) => {
 		setFloorFile('');
 		setFloorFileType('');
 		setFloorFileUri('');
-		console.log('?');
+		//console.log('?');
 	}
 
 	function writeUpdate(){
@@ -511,6 +511,8 @@ const MatchModify = ({navigation, route}) => {
 			calcCnt = (cnt).split(',').join('');
 		}
 
+		setIsLoading(false);
+
 		const formData = {
 			is_api:1,				
 			mc_idx:idx,
@@ -533,6 +535,8 @@ const MatchModify = ({navigation, route}) => {
 			mc_option2:endDateMethod,
 			mc_price:price
 		};
+
+		//console.log(floorFileType);
 
 		if(floorFile != ''){ 
 			formData.mc_file =  {'uri': floorFileUri, 'type': floorFileType, 'name': floorFile}; 
@@ -619,17 +623,20 @@ const MatchModify = ({navigation, route}) => {
 			formData.mf_file_del_9_idx = del10Idx;
 		}
 
-		console.log("formData : ",formData);
+		//console.log('useInfo : ',useInfo);
+		//console.log("formData : ",formData);
 
 		Api.send('POST', 'modify_match', formData, (args)=>{
 			let resultItem = args.resultItem;
 			let responseJson = args.responseJson;
 
 			if(responseJson.result === 'success'){
-				console.log('성공 : ',responseJson);				
+				console.log('성공 : ',responseJson);
+				setIsLoading(true);
 				navigation.navigate('Match', {isSubmit: true});
 			}else{
 				console.log('결과 출력 실패!', responseJson);
+				setIsLoading(true);
 				ToastMessage(responseJson.result_text);
 			}
 		});
@@ -643,7 +650,7 @@ const MatchModify = ({navigation, route}) => {
 			let arrItems = args.arrItems;
 			//console.log('args ', responseJson);
 			if(responseJson.result === 'success' && responseJson){
-				//console.log("modify : ",responseJson);
+				console.log("modify : ",responseJson);
 				const imgList = responseJson.mf_data;
 				if(imgList.length > 0){
 					let selectCon = fileList.map((item,index) => {					
@@ -675,9 +682,11 @@ const MatchModify = ({navigation, route}) => {
         
 				let totalComma = String(responseJson.mc_total).replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
         setCnt(totalComma);
-        
-        if(responseJson.mc_file){
-          setFloorFile(responseJson.mc_file);
+        console.log(responseJson.mc_file);
+        if(responseJson.mc_file_org){					
+          setFloorFile(responseJson.mc_file_org);
+					setFloorFileType('application/zip');
+					setFloorFileUri(responseJson.mc_file);
         }
 
         setCall(responseJson.mc_option1)
@@ -844,7 +853,7 @@ const MatchModify = ({navigation, route}) => {
 							: (
 							<View style={[styles.typingBox, styles.mgTop35]}>
 								<View style={styles.typingTitle}>
-									<Text style={styles.typingTitleText}>재료1{matt1}</Text>
+									<Text style={styles.typingTitleText}>재료1</Text>
 								</View>
 								<View style={[styles.typingInputBox]}>									
 									<RNPickerSelect

@@ -87,7 +87,7 @@ const Home = (props) => {
 			let arrItems = args.arrItems;
 			//console.log('args ', responseJson);
 			if(responseJson.result === 'success' && responseJson){
-				console.log(responseJson);
+				//console.log(responseJson);
         setMyInfo(responseJson);
 				setMyFac(responseJson.fac_info);
 				
@@ -423,11 +423,11 @@ const Home = (props) => {
 	}
 
 	const writeChk = () => {
-		if(userInfo?.bc_status_org == 1){
+		if(userInfo?.bc_status_org == 1 || userInfo?.bc_status_org == null){
 			ToastMessage('사업자등록증이 대기상태입니다.');
 		}else if(userInfo?.bc_status_org == 3){
 			ToastMessage('사업자등록증이 반려상태입니다.');
-		}else{
+		}else if(userInfo?.bc_status_org == 2){
 			setVisible2(true);
 		}		
 	}
